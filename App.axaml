@@ -1,0 +1,170 @@
+<Application xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Class="PPE.App"
+>
+    <Application.Styles>
+        <!-- Style pour les TextBox -->
+        <Style Selector="TextBox">
+            <Setter Property="Foreground" Value="#E0E0E0"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#2e2e2e"/>
+            <Setter Property="Background" Value="#3C3C3C"/>
+        </Style>
+        <Style Selector="TextBox /template/ Border#PART_BorderElement">
+            <Setter Property="BorderBrush" Value="#2e2e2e"/>
+            <Setter Property="Background" Value="#3C3C3C"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.15"/>
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="TextBox:pointerover /template/ Border#PART_BorderElement">
+            <Setter Property="BorderBrush" Value="#2e2e2e"/>
+            <Setter Property="Background" Value="#353535"/>
+        </Style>
+        <Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
+            <Setter Property="BorderBrush" Value="#2e2e2e"/>
+            <Setter Property="Background" Value="#353535"/>
+        </Style>
+        <Style Selector="TextBox:focus">
+            <Setter Property="BorderBrush" Value="#2e2e2e"/>
+        </Style>
+
+        <!-- Style pour les ComboBox -->
+        <Style Selector="ComboBox">
+            <Setter Property="Foreground" Value="#E0E0E0"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#2e2e2e"/>
+            <Setter Property="Background" Value="#3C3C3C"/>
+        </Style>
+        <Style Selector="ComboBox /template/ Border#Background">
+            <Setter Property="BorderBrush" Value="#2e2e2e"/>
+            <Setter Property="Background" Value="#3C3C3C"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.15"/>
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="ComboBox:pointerover /template/ Border#Background">
+            <Setter Property="BorderBrush" Value="#2e2e2e"/>
+            <Setter Property="Background" Value="#353535"/>
+        </Style>
+        <Style Selector="ComboBox:focus /template/ Border#Background">
+            <Setter Property="BorderBrush" Value="#2e2e2e"/>
+            <Setter Property="Background" Value="#353535"/>
+        </Style>
+        <Style Selector="ComboBox:focus">
+            <Setter Property="BorderBrush" Value="#2e2e2e"/>
+        </Style>
+
+        <!-- Style pour les boutons primaires -->
+        <Style Selector="Button.primary">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="14,8"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+        <Style Selector="Button.primary /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#6374d6"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.15"/>
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="Button.primary:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#657beb"/>
+        </Style>
+        <Style Selector="Button.primary:pressed /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#5168d4"/>
+        </Style>
+
+        <!-- Style pour le bouton supprimer -->
+        <Style Selector="Button.danger">
+            <Setter Property="Foreground" Value="#F87171"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="14,8"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+        <Style Selector="Button.danger /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#5A2D2D"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.15"/>
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="Button.danger:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#7A3D3D"/>
+        </Style>
+        <Style Selector="Button.danger:pressed /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#4A2020"/>
+        </Style>
+
+        <!-- Style pour le bouton secondaire -->
+        <Style Selector="Button.secondary">
+            <Setter Property="Background" Value="#3C3C3C"/>
+            <Setter Property="Foreground" Value="#E0E0E0"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="14,8"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+        <Style Selector="Button.secondary /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#3C3C3C"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.15"/>
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="Button.secondary:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#4C4C4C"/>
+        </Style>
+        <Style Selector="Button.secondary:pressed /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#333333"/>
+        </Style>
+
+        <!-- Style pour le DataGrid -->
+        <Style Selector="DataGrid">
+            <Setter Property="RowBackground" Value="#252526"/>
+            <Setter Property="Background" Value="#252526"/>
+            <Setter Property="Foreground" Value="#E0E0E0"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="RowHeight" Value="44"/>
+        </Style>
+
+        <!-- Style pour les lignes du DataGrid -->
+        <Style Selector="DataGridRow">
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.15"/>
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="DataGridRow:pointerover">
+            <Setter Property="Background" Value="#2c2c2d"/>
+        </Style>
+        <Style Selector="DataGridRow:selected">
+            <Setter Property="Background" Value="#3d4a7a"/>
+        </Style>
+
+        <!-- Retirer l'outline de focus des cellules -->
+        <Style Selector="DataGridCell:current /template/ Grid#FocusVisual">
+            <Setter Property="IsVisible" Value="False"/>
+        </Style>
+    </Application.Styles>
+</Application>

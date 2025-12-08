@@ -6,22 +6,27 @@ using Avalonia.VisualTree;
 
 namespace PPE
 {
-    public class App : Application
+    public partial class App : Application
     {
+        public override void Initialize()
+        {
+            Avalonia.Markup.Xaml.AvaloniaXamlLoader.Load(this);
+        }
+
         public override void OnFrameworkInitializationCompleted()
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-                desktop.MainWindow = new Main();
+                desktop.MainWindow = new MainWindow();
             base.OnFrameworkInitializationCompleted();
         }
     }
 
-    public partial class Main : Window
+    public partial class MainWindow : Window
     {
         private List<Client> _all = [];
         private readonly ObservableCollection<Client> _data = [];
 
-        public Main()
+        public MainWindow()
         {
             InitializeComponent();
 

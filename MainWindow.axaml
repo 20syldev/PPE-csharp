@@ -1,66 +1,12 @@
 <Window xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     WindowStartupLocation="CenterScreen"
-    x:Class="PPE.Main"
-    Background="#1E1E1E"
-    Title="Gestion Clients"
-    Width="900" Height="600"
     MinWidth="600" MinHeight="400"
+    Width="900" Height="600"
+    Title="Gestion Clients"
+    Background="#1E1E1E"
+    x:Class="PPE.MainWindow"
 >
-    <Window.Styles>
-        <!-- Style pour les TextBox -->
-        <Style Selector="TextBox">
-            <Setter Property="BorderBrush" Value="#555555"/>
-            <Setter Property="Background" Value="#3C3C3C"/>
-            <Setter Property="Foreground" Value="#E0E0E0"/>
-            <Setter Property="CornerRadius" Value="6"/>
-            <Setter Property="FontSize" Value="13"/>
-        </Style>
-
-        <!-- Style pour les ComboBox -->
-        <Style Selector="ComboBox">
-            <Setter Property="BorderBrush" Value="#555555"/>
-            <Setter Property="Background" Value="#3C3C3C"/>
-            <Setter Property="Foreground" Value="#E0E0E0"/>
-            <Setter Property="CornerRadius" Value="6"/>
-            <Setter Property="FontSize" Value="13"/>
-        </Style>
-
-        <!-- Style pour les boutons primaires -->
-        <Style Selector="Button.primary">
-            <Setter Property="Background" Value="#0D6EFD"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="CornerRadius" Value="6"/>
-            <Setter Property="Padding" Value="14,8"/>
-            <Setter Property="FontSize" Value="13"/>
-        </Style>
-
-        <!-- Style pour le bouton supprimer -->
-        <Style Selector="Button.danger">
-            <Setter Property="Background" Value="#5A2D2D"/>
-            <Setter Property="Foreground" Value="#F87171"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="CornerRadius" Value="6"/>
-            <Setter Property="Padding" Value="14,8"/>
-            <Setter Property="FontSize" Value="13"/>
-        </Style>
-
-        <!-- Style pour le DataGrid -->
-        <Style Selector="DataGrid">
-            <Setter Property="RowBackground" Value="#252526"/>
-            <Setter Property="Background" Value="#252526"/>
-            <Setter Property="Foreground" Value="#E0E0E0"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="RowHeight" Value="44"/>
-        </Style>
-
-        <!-- Retirer l'outline de focus des cellules -->
-        <Style Selector="DataGridCell:current /template/ Grid#FocusVisual">
-            <Setter Property="IsVisible" Value="False"/>
-        </Style>
-    </Window.Styles>
-
     <DockPanel>
         <!-- Toolbar -->
         <Border DockPanel.Dock="Top"
@@ -145,12 +91,12 @@
             >
 
                 <DataGrid x:Name="_grid"
+                    GridLinesVisibility="Horizontal"
                     AutoGenerateColumns="False"
                     CanUserResizeColumns="True"
                     CanUserSortColumns="True"
-                    IsReadOnly="True"
-                    GridLinesVisibility="Horizontal"
                     SelectionMode="Single"
+                    IsReadOnly="True"
                 >
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Nom" Binding="{Binding Nom}" Width="*"/>
