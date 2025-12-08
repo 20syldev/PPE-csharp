@@ -46,6 +46,9 @@ dotnet add package Avalonia.Desktop
 dotnet add package Avalonia.Fonts.Inter
 dotnet add package Avalonia.Themes.Fluent
 dotnet add package Avalonia.Controls.DataGrid
+
+# Ou restorer les dépendances
+dotnet restore
 ```
 
 ## Utilisation
@@ -63,12 +66,27 @@ dotnet run
 ```
 PPE/
 ├── Main.cs        # Point d'entrée et configuration
-├── Interface.cs   # Interface graphique (MainWindow)
+├── Main.axaml     # Interface graphique (XAML)
+├── Interface.cs   # Logique de l'interface (code-behind)
 ├── Client.cs      # Modèle et opérations CRUD
 ├── Connect.cs     # Connexion à la base de données
 ├── Crypto.cs      # Utilitaires de chiffrement
 └── Popup.cs       # Dialogues (ajout, modification, confirmation)
 ```
+
+## Architecture
+
+L'interface utilise le pattern XAML/code-behind d'Avalonia :
+
+- **Window.axaml** : Définit la structure de l'UI et les styles en XML
+- **Interface.cs** : Contient la logique (événements, filtrage, CRUD)
+
+### Styles disponibles (Window.axaml)
+
+| Classe | Usage |
+|--------|-------|
+| `Button.primary` | Boutons d'action principaux (bleu) |
+| `Button.danger` | Boutons de suppression (rouge) |
 
 ## Apercu
 
