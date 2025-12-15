@@ -1,23 +1,29 @@
-# PPE - Gestion Clients
+# PPE - Gestion Utilisateurs
 
-> **Work In Progress**
-
-Application de bureau pour la gestion de clients, développée en C# avec Avalonia UI et PostgreSQL.
+Application de bureau pour la gestion d'utilisateurs avec authentification, développée en C# avec Avalonia UI et PostgreSQL.
 
 ## Fonctionnalités
 
-- Affichage des clients dans une grille de données
-- Ajout, modification et suppression de clients
-- Recherche avec filtres (nom, ville, code postal)
+- Authentification avec validation de mot de passe sécurisé
+- Indicateur de force du mot de passe en temps réel
+- Gestion des rôles (administrateur / utilisateur)
+- CRUD complet sur les utilisateurs
+- Recherche avec filtres (nom, ville, code postal, adresse)
 - Interface moderne avec thème sombre Fluent
 
 ## Technologies
 
-| Composant | Version |
-|-----------|---------|
-| .NET | 8.0 |
-| Avalonia UI | 11.3.9 |
-| PostgreSQL | via Npgsql 10.0.0 |
+| Composant | Version | Description |
+|-----------|---------|-------------|
+| .NET | 8.0 | Framework principal |
+| Avalonia UI | 11.3.9 | Interface graphique cross-platform |
+| Avalonia.Desktop | 11.3.9 | Support desktop |
+| Avalonia.Controls.DataGrid | 11.3.9 | Grille de données |
+| Avalonia.Themes.Fluent | 11.3.9 | Thème Fluent Design |
+| Avalonia.Fonts.Inter | 11.3.9 | Police Inter |
+| Avalonia.Diagnostics | 11.3.9 | Outils de diagnostic |
+| Npgsql | 10.0.0 | Driver PostgreSQL |
+| DotNetEnv | 3.1.1 | Gestion des variables d'environnement |
 
 ## Prérequis
 
@@ -26,7 +32,13 @@ Application de bureau pour la gestion de clients, développée en C# avec Avalon
 
 ### Configuration de la base de données
 
-Exécutez le script [schema.sql](schema.sql) pour créer la base de données, la table et les procédures stockées :
+1. Copiez le fichier `.env.example` en `.env` et configurez vos identifiants :
+
+```bash
+cp .env.example .env
+```
+
+2. Exécutez le script [schema.sql](schema.sql) pour créer la base de données, la table et les procédures stockées :
 
 ```bash
 psql -U postgres -f schema.sql
@@ -39,15 +51,7 @@ psql -U postgres -f schema.sql
 git clone <url-du-repo>
 cd PPE
 
-# Mettre à jour les dépendances
-dotnet add package Npgsql
-dotnet add package Avalonia
-dotnet add package Avalonia.Desktop
-dotnet add package Avalonia.Fonts.Inter
-dotnet add package Avalonia.Themes.Fluent
-dotnet add package Avalonia.Controls.DataGrid
-
-# Ou restorer les dépendances
+# Restaurer les dépendances
 dotnet restore
 ```
 
@@ -65,35 +69,55 @@ dotnet run
 
 ```
 PPE/
-├── Main.cs        # Point d'entrée et configuration
-├── Main.axaml     # Interface graphique (XAML)
-├── Interface.cs   # Logique de l'interface (code-behind)
-├── Client.cs      # Modèle et opérations CRUD
-├── Connect.cs     # Connexion à la base de données
-├── Crypto.cs      # Utilitaires de chiffrement
-└── Popup.cs       # Dialogues (ajout, modification, confirmation)
+├── Main.cs                 # Point d'entrée et configuration
+├── PPE.csproj              # Configuration du projet
+├── schema.sql              # Script de création BDD
+├── .env.example            # Template de configuration
+│
+├── Modele/                 # Couche données
+│   ├── Connect.cs          # Connexion BDD (singleton)
+│   ├── Utilisateur.cs      # Entité utilisateur et CRUD
+│   ├── Hashage.cs          # Hachage SHA-512 + sel
+│   └── Crypto.cs           # Chiffrement 3DES
+│
+├── Controlleur/            # Logique applicative
+│   ├── LoginController.cs  # Authentification et inscription
+│   ├── MainController.cs   # Liste des utilisateurs
+│   ├── AdminController.cs  # Interface administrateur
+│   ├── HomeController.cs   # Tableau de bord utilisateur
+│   └── DialogController.cs # Dialogues modaux
+│
+└── Vue/                    # Interfaces XAML
+    ├── App.axaml           # Styles globaux
+    ├── LoginWindow.axaml   # Écran de connexion
+    ├── MainWindow.axaml    # Liste utilisateurs
+    ├── AdminWindow.axaml   # Dashboard admin
+    ├── HomeWindow.axaml    # Dashboard utilisateur
+    └── *Dialog.axaml       # Dialogues (Add, Edit, Confirm, Settings, Info)
 ```
 
 ## Architecture
 
-L'interface utilise le pattern XAML/code-behind d'Avalonia :
+L'application suit une architecture **MVC** (Modèle-Vue-Contrôleur) :
 
-- **Window.axaml** : Définit la structure de l'UI et les styles en XML
-- **Interface.cs** : Contient la logique (événements, filtrage, CRUD)
+- **Modele/** : Entités, accès aux données, utilitaires de sécurité
+- **Vue/** : Interfaces XAML avec thème Fluent sombre
+- **Controlleur/** : Logique métier et gestion des événements
 
-### Styles disponibles (Window.axaml)
+### Sécurité
 
-| Classe | Usage |
-|--------|-------|
-| `Button.primary` | Boutons d'action principaux (bleu) |
-| `Button.danger` | Boutons de suppression (rouge) |
+| Fonctionnalité | Implémentation |
+|----------------|----------------|
+| Hachage mot de passe | SHA-512 + sel aléatoire 32 octets |
+| Validation mot de passe | Min 8 car., majuscule, minuscule, chiffre, 2 caractères spéciaux |
+| Validation email | Pattern RFC compliant |
+| Chiffrement données | Triple DES (3DES) 192 bits |
 
-## Apercu
+### Flux applicatif
 
-L'application affiche une interface avec :
-- Une barre d'outils avec recherche et boutons d'action
-- Une grille de données listant les clients
-- Des dialogues modaux pour l'ajout et la modification
+1. **Connexion** : L'utilisateur se connecte ou crée un compte
+2. **Redirection** : Admin → AdminWindow, Utilisateur → HomeWindow
+3. **Gestion** : CRUD sur les utilisateurs avec filtres et recherche
 
 ---
 
