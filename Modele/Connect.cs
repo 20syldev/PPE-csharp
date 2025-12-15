@@ -1,6 +1,6 @@
-﻿using Npgsql;
+using Npgsql;
 
-namespace PPE
+namespace PPE.Modele
 {
     public class Connect
     {

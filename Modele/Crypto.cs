@@ -1,7 +1,7 @@
-﻿using System.Security.Cryptography;
+using System.Security.Cryptography;
 using System.Text;
 
-namespace PPE
+namespace PPE.Modele
 {
     public static class Crypto
     {
@@ -15,7 +15,7 @@ namespace PPE
         }
 
 
-        /// Encrypt strings 3DES (192 bits)
+        /// Encrypter strings 3DES (192 bits)
         public static string Encrypt(string data)
         {
             using TripleDES DES = TripleDES.Create();
@@ -30,7 +30,7 @@ namespace PPE
         }
 
 
-        /// Decrypt strings 3DES (192 bits)
+        /// Decrypter strings 3DES (192 bits)
         public static string Decrypt(string data)
         {
             using TripleDES DES = TripleDES.Create();

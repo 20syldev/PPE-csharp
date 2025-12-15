@@ -1,0 +1,106 @@
+<Window xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Class="PPE.Controlleur.LoginWindow"
+    Title="Connexion"
+    WindowStartupLocation="CenterScreen"
+    Background="#1E1E1E"
+    SizeToContent="Height"
+    CanResize="False"
+    Width="400"
+>
+    <StackPanel Margin="30" Spacing="16">
+        <!-- Titre -->
+        <TextBlock Text="Connexion"
+            HorizontalAlignment="Center"
+            Foreground="#E0E0E0"
+            FontWeight="SemiBold"
+            FontSize="24"
+            Margin="0,0,0,8"
+        />
+
+        <!-- Toggle Connexion / Inscription -->
+        <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Spacing="8">
+            <Button x:Name="_tabLogin" Content="Se connecter" Classes="secondary"/>
+            <Button x:Name="_tabRegister" Content="Créer un compte" Classes="secondary"/>
+        </StackPanel>
+
+        <!-- Email -->
+        <StackPanel Spacing="4">
+            <TextBlock Text="Email" Foreground="#858585" FontSize="12"/>
+            <TextBox x:Name="_login" Padding="10,8" Watermark="nom@domaine.com"/>
+            <TextBlock x:Name="_loginError"
+                Foreground="#F87171"
+                FontSize="11"
+                IsVisible="False"
+            />
+        </StackPanel>
+
+        <!-- Mot de passe -->
+        <StackPanel Spacing="4">
+            <TextBlock Text="Mot de passe" Foreground="#858585" FontSize="12"/>
+            <TextBox x:Name="_password"
+                Padding="10,8"
+                PasswordChar="•"
+            />
+        </StackPanel>
+
+        <!-- Confirmation mot de passe (inscription uniquement) -->
+        <StackPanel x:Name="_confirmPanel" Spacing="4" IsVisible="False">
+            <TextBlock Text="Confirmer le mot de passe" Foreground="#858585" FontSize="12"/>
+            <TextBox x:Name="_confirmPassword"
+                Padding="10,8"
+                PasswordChar="•"
+            />
+        </StackPanel>
+
+        <!-- Jauge de force du mot de passe (inscription uniquement) -->
+        <StackPanel x:Name="_strengthPanel" Spacing="6" IsVisible="False">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Grid.Column="0" Text="Force du mot de passe" Foreground="#858585" FontSize="12"/>
+                <TextBlock x:Name="_strengthText" Grid.Column="1" Foreground="#858585" FontSize="12" FontWeight="SemiBold"/>
+            </Grid>
+
+            <!-- Barre de progression -->
+            <Border
+                Height="8"
+                CornerRadius="4"
+                Background="#3C3C3C"
+            >
+                <Border x:Name="_strengthBar"
+                    Height="8"
+                    CornerRadius="4"
+                    HorizontalAlignment="Left"
+                    Width="0"
+                />
+            </Border>
+
+            <!-- Liste des critères -->
+            <StackPanel Spacing="2" Margin="0,4,0,0">
+                <TextBlock x:Name="_critMin" Text="• 8 caractères minimum" Foreground="#858585" FontSize="11"/>
+                <TextBlock x:Name="_critUpper" Text="• Une majuscule" Foreground="#858585" FontSize="11"/>
+                <TextBlock x:Name="_critLower" Text="• Une minuscule" Foreground="#858585" FontSize="11"/>
+                <TextBlock x:Name="_critDigit" Text="• Un chiffre" Foreground="#858585" FontSize="11"/>
+                <TextBlock x:Name="_critSpecial" Text="• 2 caractères spéciaux" Foreground="#858585" FontSize="11"/>
+                <TextBlock x:Name="_critRepeat" Text="• Pas de répétition" Foreground="#858585" FontSize="11"/>
+            </StackPanel>
+        </StackPanel>
+
+        <!-- Erreur générale -->
+        <TextBlock x:Name="_error"
+            Foreground="#F87171"
+            FontSize="12"
+            TextWrapping="Wrap"
+            HorizontalAlignment="Center"
+            IsVisible="False"
+        />
+
+        <!-- Bouton principal -->
+        <Button x:Name="_submit"
+            Content="Se connecter"
+            Classes="primary"
+            HorizontalAlignment="Stretch"
+            HorizontalContentAlignment="Center"
+            Margin="0,8,0,0"
+        />
+    </StackPanel>
+</Window>

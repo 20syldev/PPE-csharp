@@ -3,8 +3,9 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.VisualTree;
+using PPE.Modele;
 
-namespace PPE
+namespace PPE.Controlleur
 {
     public partial class App : Application
     {
@@ -16,24 +17,41 @@ namespace PPE
         public override void OnFrameworkInitializationCompleted()
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-                desktop.MainWindow = new MainWindow();
+            {
+                // Afficher la page de connexion d'abord
+                desktop.MainWindow = new LoginWindow();
+            }
             base.OnFrameworkInitializationCompleted();
         }
     }
 
     public partial class MainWindow : Window
     {
-        private List<Client> _all = [];
-        private readonly ObservableCollection<Client> _data = [];
+        private List<Utilisateur> _all = [];
+        private readonly ObservableCollection<Utilisateur> _data = [];
 
         public MainWindow()
         {
             InitializeComponent();
 
+            // Mettre à jour le titre avec le nom de l'utilisateur connecté
+            if (Utilisateur.Current != null)
+            {
+                Title = $"Gestion Utilisateurs - {Utilisateur.Current.Login}";
+            }
+
             // Événements des boutons
             _btnDel.Click += (s, e) => Delete();
             _btnAdd.Click += (s, e) => Add();
             _btnAddEmpty.Click += (s, e) => Add();
+
+            // Déconnexion
+            _logout.Click += (s, e) =>
+            {
+                Utilisateur.Current = null;
+                new LoginWindow().Show();
+                Close();
+            };
 
             // Configurer le DataGrid
             _grid.ItemsSource = _data;
@@ -55,13 +73,28 @@ namespace PPE
                     _grid.SelectedItem = null;
             };
 
+            // Actualiser
+            _btnRefresh.Click += (s, e) => Load();
+
+            // Menu contextuel - données sensibles
+            _menuShowPassword.Click += async (s, e) =>
+            {
+                if (_grid.SelectedItem is Utilisateur u)
+                    await new InfoDialog("Mot de passe", u.Password ?? "(non disponible)").ShowDialog(this);
+            };
+            _menuShowCode.Click += async (s, e) =>
+            {
+                if (_grid.SelectedItem is Utilisateur u)
+                    await new InfoDialog("Code utilisateur", u.IdCode?.ToString() ?? "(non disponible)").ShowDialog(this);
+            };
+
             // Charger quand la fenêtre est prête
             Opened += (s, e) => Load();
         }
 
         private void Load()
         {
-            Console.WriteLine("[LOAD] Chargement des clients...");
+            Console.WriteLine("[LOAD] Chargement des utilisateurs...");
             try
             {
                 if (!Connect.Instance().IsConnect())
@@ -70,12 +103,12 @@ namespace PPE
                     _count.Text = "(erreur connexion)";
                     return;
                 }
-                _all = Client.ListerTous();
+                _all = Utilisateur.ListerTous();
                 _data.Clear();
-                foreach (var c in _all)
-                    _data.Add(c);
+                foreach (var u in _all)
+                    _data.Add(u);
                 _count.Text = $"({_all.Count})";
-                Console.WriteLine($"[LOAD] {_all.Count} client(s) chargé(s)");
+                Console.WriteLine($"[LOAD] {_all.Count} utilisateur(s) chargé(s)");
                 UpdateEmptyState();
             }
             catch (Exception ex)
@@ -101,18 +134,18 @@ namespace PPE
 
             var res = string.IsNullOrEmpty(q) ? _all : f switch
             {
-                "Nom" => _all.Where(c => c.Nom?.Contains(q, StringComparison.OrdinalIgnoreCase) == true),
-                "Ville" => _all.Where(c => c.Ville?.Contains(q, StringComparison.OrdinalIgnoreCase) == true),
-                "Code postal" => _all.Where(c => c.Code?.StartsWith(q) == true),
-                _ => _all.Where(c =>
-                    c.Nom?.Contains(q, StringComparison.OrdinalIgnoreCase) == true ||
-                    c.Ville?.Contains(q, StringComparison.OrdinalIgnoreCase) == true ||
-                    c.Code?.Contains(q) == true ||
-                    c.Adresse?.Contains(q, StringComparison.OrdinalIgnoreCase) == true)
+                "Nom" => _all.Where(u => u.Nom?.Contains(q, StringComparison.OrdinalIgnoreCase) == true),
+                "Ville" => _all.Where(u => u.Ville?.Contains(q, StringComparison.OrdinalIgnoreCase) == true),
+                "Code postal" => _all.Where(u => u.Code?.StartsWith(q) == true),
+                _ => _all.Where(u =>
+                    u.Nom?.Contains(q, StringComparison.OrdinalIgnoreCase) == true ||
+                    u.Ville?.Contains(q, StringComparison.OrdinalIgnoreCase) == true ||
+                    u.Code?.Contains(q) == true ||
+                    u.Adresse?.Contains(q, StringComparison.OrdinalIgnoreCase) == true)
             };
 
             _data.Clear();
-            foreach (var c in res) _data.Add(c);
+            foreach (var u in res) _data.Add(u);
 
             _count.Text = string.IsNullOrEmpty(q)
                 ? $"({_data.Count})"
@@ -124,11 +157,15 @@ namespace PPE
         private async void Add()
         {
             Console.WriteLine("[ADD] Ouverture du dialogue d'ajout");
-            var r = await new AddDialog().ShowDialog<Client?>(this);
-            if (r?.Enregistrer() == true)
+            var r = await new AddDialog().ShowDialog<Utilisateur?>(this);
+            if (r != null)
             {
-                Console.WriteLine($"[ADD] Client ajouté: {r.Nom} ({r.Ville})");
-                Load();
+                // Créer un nouveau compte utilisateur
+                if (r.CreerCompte("TempPass!@34")) // Mot de passe temporaire valide
+                {
+                    Console.WriteLine($"[ADD] Utilisateur ajouté: {r.Nom} ({r.Ville}) - IdCode: {r.IdCode}");
+                    Load();
+                }
             }
             else
             {
@@ -138,12 +175,12 @@ namespace PPE
 
         private async void Delete()
         {
-            if (_grid.SelectedItem is not Client c || c.Id == null) return;
-            Console.WriteLine($"[DELETE] Demande de suppression: {c.Nom} (ID: {c.Id})");
-            if (await new ConfirmDialog($"Supprimer {c.Nom} ?").ShowDialog<bool>(this))
+            if (_grid.SelectedItem is not Utilisateur u || u.Id == null) return;
+            Console.WriteLine($"[DELETE] Demande de suppression: {u.Nom} (ID: {u.Id})");
+            if (await new ConfirmDialog($"Supprimer {u.Nom} ?").ShowDialog<bool>(this))
             {
-                Client.Supprimer(c.Id.Value);
-                Console.WriteLine($"[DELETE] Client supprimé: {c.Nom}");
+                Utilisateur.Supprimer(u.Id.Value);
+                Console.WriteLine($"[DELETE] Utilisateur supprimé: {u.Nom}");
                 Load();
             }
             else
@@ -154,12 +191,12 @@ namespace PPE
 
         private async void Edit()
         {
-            if (_grid.SelectedItem is not Client c || c.Id == null) return;
-            Console.WriteLine($"[EDIT] Ouverture du dialogue de modification: {c.Nom} (ID: {c.Id})");
-            var r = await new EditDialog(c).ShowDialog<Client?>(this);
+            if (_grid.SelectedItem is not Utilisateur u || u.Id == null) return;
+            Console.WriteLine($"[EDIT] Ouverture du dialogue de modification: {u.Nom} (ID: {u.Id})");
+            var r = await new EditDialog(u).ShowDialog<Utilisateur?>(this);
             if (r?.Modifier() == true)
             {
-                Console.WriteLine($"[EDIT] Client modifié: {r.Nom} ({r.Ville})");
+                Console.WriteLine($"[EDIT] Utilisateur modifié: {r.Nom} ({r.Ville})");
                 Load();
             }
             else
