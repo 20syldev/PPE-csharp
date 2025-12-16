@@ -1,44 +1,50 @@
-# PPE - Gestion Utilisateurs
+# PPE - User Management
 
-Application de bureau pour la gestion d'utilisateurs avec authentification, développée en C# avec Avalonia UI et PostgreSQL.
+Desktop application for user management with secure authentication and two-factor authentication (2FA), built with C#, Avalonia UI and PostgreSQL.
 
-## Fonctionnalités
+## Features
 
-- Authentification avec validation de mot de passe sécurisé
-- Indicateur de force du mot de passe en temps réel
-- Gestion des rôles (administrateur / utilisateur)
-- CRUD complet sur les utilisateurs
-- Recherche avec filtres (nom, ville, code postal, adresse)
-- Interface moderne avec thème sombre Fluent
+- Authentication with secure password validation
+- Two-factor authentication (2FA) with TOTP and QR Code
+- Recovery codes for 2FA
+- Real-time password strength indicator
+- Last 3 passwords history (non-reusable)
+- Role management (administrator / user)
+- Full CRUD on users
+- Search with filters (name, city, postal code, address)
+- Modern interface with FluentAvalonia
+- Logout confirmation dialogs
 
 ## Technologies
 
-| Composant | Version | Description |
+| Component | Version | Description |
 |-----------|---------|-------------|
-| .NET | 8.0 | Framework principal |
-| Avalonia UI | 11.3.9 | Interface graphique cross-platform |
-| Avalonia.Desktop | 11.3.9 | Support desktop |
-| Avalonia.Controls.DataGrid | 11.3.9 | Grille de données |
-| Avalonia.Themes.Fluent | 11.3.9 | Thème Fluent Design |
-| Avalonia.Fonts.Inter | 11.3.9 | Police Inter |
-| Avalonia.Diagnostics | 11.3.9 | Outils de diagnostic |
-| Npgsql | 10.0.0 | Driver PostgreSQL |
-| DotNetEnv | 3.1.1 | Gestion des variables d'environnement |
+| .NET | 8.0 | Main framework |
+| Avalonia UI | 11.3.9 | Cross-platform UI |
+| Avalonia.Desktop | 11.3.9 | Desktop support |
+| Avalonia.Controls.DataGrid | 11.3.9 | Data grid |
+| Avalonia.Fonts.Inter | 11.3.9 | Inter font |
+| Avalonia.Diagnostics | 11.3.9 | Diagnostic tools |
+| FluentAvaloniaUI | 2.4.1 | UI components and theming |
+| Npgsql | 10.0.0 | PostgreSQL driver |
+| DotNetEnv | 3.1.1 | Environment variables |
+| Otp.NET | 1.4.0 | TOTP generation/validation |
+| QRCoder | 1.6.0 | QR code generation |
 
-## Prérequis
+## Prerequisites
 
 - [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
-- PostgreSQL avec une base de données configurée
+- PostgreSQL with configured database
 
-### Configuration de la base de données
+### Database Configuration
 
-1. Copiez le fichier `.env.example` en `.env` et configurez vos identifiants :
+1. Copy `.env.example` to `.env` and configure your credentials:
 
 ```bash
 cp .env.example .env
 ```
 
-2. Exécutez le script [schema.sql](schema.sql) pour créer la base de données, la table et les procédures stockées :
+2. Run the [schema.sql](schema.sql) script to create the database, table and stored procedures:
 
 ```bash
 psql -U postgres -f schema.sql
@@ -47,78 +53,86 @@ psql -U postgres -f schema.sql
 ## Installation
 
 ```bash
-# Cloner le projet
-git clone <url-du-repo>
+# Clone the project
+git clone <repo-url>
 cd PPE
 
-# Restaurer les dépendances
+# Restore dependencies
 dotnet restore
 ```
 
-## Utilisation
+## Usage
 
 ```bash
-# Compiler
+# Build
 dotnet build
 
-# Exécuter
+# Run
 dotnet run
 ```
 
-## Structure du projet
+## Project Structure
 
 ```
 PPE/
-├── Main.cs                 # Point d'entrée et configuration
-├── PPE.csproj              # Configuration du projet
-├── schema.sql              # Script de création BDD
-├── .env.example            # Template de configuration
+├── Main.cs                     # Entry point and configuration
+├── PPE.csproj                  # Project configuration
+├── schema.sql                  # Database creation script
+├── .env.example                # Configuration template
 │
-├── Modele/                 # Couche données
-│   ├── Connect.cs          # Connexion BDD (singleton)
-│   ├── Utilisateur.cs      # Entité utilisateur et CRUD
-│   ├── Hashage.cs          # Hachage SHA-512 + sel
-│   └── Crypto.cs           # Chiffrement 3DES
+├── Model/                      # Data layer
+│   ├── Connection.cs           # Database connection (singleton)
+│   ├── User.cs                 # User entity and CRUD
+│   └── TotpService.cs          # TOTP service (2FA, QR codes)
 │
-├── Controlleur/            # Logique applicative
-│   ├── LoginController.cs  # Authentification et inscription
-│   ├── MainController.cs   # Liste des utilisateurs
-│   ├── AdminController.cs  # Interface administrateur
-│   ├── HomeController.cs   # Tableau de bord utilisateur
-│   └── DialogController.cs # Dialogues modaux
+├── Controller/                 # Application logic
+│   ├── App.axaml               # Application entry and themes
+│   └── Controllers.cs          # All controllers (Login, Home, Admin, Settings, Auth, etc.)
 │
-└── Vue/                    # Interfaces XAML
-    ├── App.axaml           # Styles globaux
-    ├── LoginWindow.axaml   # Écran de connexion
-    ├── MainWindow.axaml    # Liste utilisateurs
-    ├── AdminWindow.axaml   # Dashboard admin
-    ├── HomeWindow.axaml    # Dashboard utilisateur
-    └── *Dialog.axaml       # Dialogues (Add, Edit, Confirm, Settings, Info)
+├── Utility/                    # Utility classes
+│   ├── Hashing.cs              # SHA-512 + salt hashing
+│   └── Crypto.cs               # 3DES encryption
+│
+└── View/                       # AXAML interfaces
+    ├── Login.axaml             # Login and registration
+    ├── Home.axaml              # User dashboard
+    ├── Admin.axaml             # Admin dashboard with NavigationView
+    ├── Settings.axaml          # User settings with SettingsExpander
+    ├── Add.axaml               # Add user dialog
+    ├── Edit.axaml              # Edit user dialog
+    ├── Password.axaml          # Change password dialog
+    ├── Auth.axaml              # 2FA configuration
+    └── AuthVerify.axaml        # 2FA verification at login
 ```
 
 ## Architecture
 
-L'application suit une architecture **MVC** (Modèle-Vue-Contrôleur) :
+The application follows an **MVC** (Model-View-Controller) architecture:
 
-- **Modele/** : Entités, accès aux données, utilitaires de sécurité
-- **Vue/** : Interfaces XAML avec thème Fluent sombre
-- **Controlleur/** : Logique métier et gestion des événements
+- **Model/**: Entities, data access, TOTP service
+- **View/**: AXAML interfaces with FluentAvalonia
+- **Controller/**: Business logic and event handling
+- **Utility/**: Security classes (hashing, encryption)
 
-### Sécurité
+### Security
 
-| Fonctionnalité | Implémentation |
-|----------------|----------------|
-| Hachage mot de passe | SHA-512 + sel aléatoire 32 octets |
-| Validation mot de passe | Min 8 car., majuscule, minuscule, chiffre, 2 caractères spéciaux |
-| Validation email | Pattern RFC compliant |
-| Chiffrement données | Triple DES (3DES) 192 bits |
+| Feature | Implementation |
+|---------|----------------|
+| Password hashing | SHA-512 + 32-byte random salt |
+| Password validation | Min 8 chars, uppercase, lowercase, digit, 2 special chars, no 3 consecutive identical chars |
+| Password history | Last 3 passwords non-reusable |
+| Email validation | RFC compliant pattern |
+| Data encryption | Triple DES (3DES) 192 bits |
+| Two-factor authentication | TOTP (RFC 6238) with Google Authenticator |
+| Recovery codes | 8 single-use codes |
 
-### Flux applicatif
+### Application Flow
 
-1. **Connexion** : L'utilisateur se connecte ou crée un compte
-2. **Redirection** : Admin → AdminWindow, Utilisateur → HomeWindow
-3. **Gestion** : CRUD sur les utilisateurs avec filtres et recherche
+1. **Login**: User logs in or creates an account
+2. **2FA Verification**: If enabled, TOTP code is required
+3. **Redirect**: Admin → Admin dashboard, User → Home dashboard
+4. **Management**: CRUD on users with filters and search
 
 ---
 
-*Projet réalisé dans le cadre du BTSSIO SLAM - 2ème année*
+*Project developed for BTSSIO SLAM - 2nd year*
