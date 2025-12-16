@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace PPE.Modele
+namespace PPE.Utility
 {
     public static class Crypto
     {

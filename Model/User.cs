@@ -1,16 +1,17 @@
 using Npgsql;
 using System.Text.RegularExpressions;
+using PPE.Utility;
 
-namespace PPE.Modele
+namespace PPE.Model
 {
     /// <summary>
-    /// Résultat de la validation du mot de passe
+    /// Password validation result
     /// </summary>
     public class PasswordValidation
     {
         public bool IsValid { get; set; }
-        public string Strength { get; set; } = "Faible";
-        public string Color { get; set; } = "#F87171"; // Rouge
+        public string Strength { get; set; } = "Weak";
+        public string Color { get; set; } = "#F87171";
         public List<string> Errors { get; set; } = [];
 
         public bool HasMinLength { get; set; }
@@ -22,7 +23,7 @@ namespace PPE.Modele
     }
 
     /// <summary>
-    /// Résultat de la validation de l'email
+    /// Email validation result
     /// </summary>
     public class EmailValidation
     {
@@ -31,20 +32,20 @@ namespace PPE.Modele
     }
 
     /// <summary>
-    /// Résultat de la validation du code postal
+    /// Postal code validation result
     /// </summary>
-    public class CodePostalValidation
+    public class PostalCodeValidation
     {
         public bool IsValid { get; set; }
         public string? Error { get; set; }
     }
 
     /// <summary>
-    /// Classe métier Utilisateur avec authentification et informations personnelles
-    /// Utilise une procédure stockée pour la récupération de l'id_code auto-incrémenté
-    /// Hash SHA512 + salage pour les mots de passe
+    /// User entity class with authentication and personal information
+    /// Uses stored procedure for auto-incremented id_code retrieval
+    /// SHA512 hash + salt for passwords
     /// </summary>
-    public class Utilisateur
+    public class User
     {
         public Guid? Id { get; set; }
         public int? IdCode { get; set; }
@@ -56,17 +57,22 @@ namespace PPE.Modele
         public string? Ville { get; set; }
         public string? Code { get; set; }
 
-        // Utilisateur actuellement connecté
-        public static Utilisateur? Current { get; set; }
+        // 2FA properties
+        public string? TotpSecret { get; set; }
+        public bool TotpEnabled { get; set; }
+        public string? RecoveryCodes { get; set; }
 
-        public Utilisateur() { }
+        // Currently logged in user
+        public static User? Current { get; set; }
 
-        public Utilisateur(string login)
+        public User() { }
+
+        public User(string login)
         {
             Login = login;
         }
 
-        public Utilisateur(string nom, string adresse, string ville, string code)
+        public User(string nom, string adresse, string ville, string code)
         {
             Nom = nom;
             Adresse = adresse;
@@ -75,7 +81,7 @@ namespace PPE.Modele
         }
 
         /// <summary>
-        /// Valide un email (format et domaine valide)
+        /// Validates an email (format and valid domain)
         /// </summary>
         public static EmailValidation ValidateEmail(string email)
         {
@@ -83,16 +89,16 @@ namespace PPE.Modele
 
             if (string.IsNullOrWhiteSpace(email))
             {
-                result.Error = "L'email ne peut pas être vide";
+                result.Error = "Email cannot be empty";
                 return result;
             }
 
-            // Regex pour valider le format email avec domaine (nom.extension)
+            // Regex to validate email format with domain (name.extension)
             var emailRegex = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$";
 
             if (!Regex.IsMatch(email, emailRegex))
             {
-                result.Error = "Format d'email invalide (ex: nom@domaine.com)";
+                result.Error = "Invalid email format (e.g. name@domain.com)";
                 return result;
             }
 
@@ -101,41 +107,41 @@ namespace PPE.Modele
         }
 
         /// <summary>
-        /// Valide un code postal français (5 chiffres)
-        /// Formats acceptés: 01000-95999 (métropole), 20000-20999 (Corse), 97xxx-98xxx (DOM-TOM)
+        /// Validates a French postal code (5 digits)
+        /// Accepted formats: 01000-95999 (metropolitan), 20000-20999 (Corsica), 97xxx-98xxx (overseas)
         /// </summary>
-        public static CodePostalValidation ValidateCodePostal(string codePostal)
+        public static PostalCodeValidation ValidatePostalCode(string postalCode)
         {
-            var result = new CodePostalValidation();
+            var result = new PostalCodeValidation();
 
-            if (string.IsNullOrWhiteSpace(codePostal))
+            if (string.IsNullOrWhiteSpace(postalCode))
             {
-                result.Error = "Le code postal ne peut pas être vide";
+                result.Error = "Postal code cannot be empty";
                 return result;
             }
 
-            // Doit être exactement 5 chiffres
-            if (!Regex.IsMatch(codePostal, @"^\d{5}$"))
+            // Must be exactly 5 digits
+            if (!Regex.IsMatch(postalCode, @"^\d{5}$"))
             {
-                result.Error = "Le code postal doit contenir 5 chiffres";
+                result.Error = "Postal code must contain 5 digits";
                 return result;
             }
 
-            int code = int.Parse(codePostal);
+            int code = int.Parse(postalCode);
 
-            // Validation des plages françaises:
-            // 01000-19999: Départements 01-19
-            // 20000-20999: Corse (2A et 2B)
-            // 21000-95999: Départements 21-95
-            // 97100-97699: DOM (Guadeloupe, Martinique, Guyane, Réunion, Mayotte)
-            // 98000-98899: COM (Monaco, etc.)
-            bool isValid = (code >= 1000 && code <= 95999) ||  // Métropole + Corse
-                          (code >= 97100 && code <= 97699) ||  // DOM
-                          (code >= 98000 && code <= 98899);    // COM
+            // French postal code range validation:
+            // 01000-19999: Departments 01-19
+            // 20000-20999: Corsica (2A and 2B)
+            // 21000-95999: Departments 21-95
+            // 97100-97699: Overseas departments (Guadeloupe, Martinique, French Guiana, Reunion, Mayotte)
+            // 98000-98899: Overseas collectivities (Monaco, etc.)
+            bool isValid = (code >= 1000 && code <= 95999) ||  // Metropolitan + Corsica
+                          (code >= 97100 && code <= 97699) ||  // Overseas departments
+                          (code >= 98000 && code <= 98899);    // Overseas collectivities
 
             if (!isValid)
             {
-                result.Error = "Code postal français invalide";
+                result.Error = "Invalid French postal code";
                 return result;
             }
 
@@ -144,13 +150,13 @@ namespace PPE.Modele
         }
 
         /// <summary>
-        /// Valide un mot de passe selon les critères:
-        /// - 8 caractères minimum
-        /// - Au moins 2 caractères spéciaux
-        /// - Au moins une majuscule
-        /// - Au moins une minuscule
-        /// - Au moins un chiffre
-        /// - Pas de répétition de caractères 2 fois de suite
+        /// Validates a password according to criteria:
+        /// - Minimum 8 characters
+        /// - At least 2 special characters
+        /// - At least one uppercase letter
+        /// - At least one lowercase letter
+        /// - At least one digit
+        /// - No character repeated twice in a row
         /// </summary>
         public static PasswordValidation ValidatePassword(string password)
         {
@@ -158,34 +164,34 @@ namespace PPE.Modele
 
             if (string.IsNullOrEmpty(password))
             {
-                result.Errors.Add("Le mot de passe ne peut pas être vide");
+                result.Errors.Add("Password cannot be empty");
                 return result;
             }
 
             result.HasMinLength = password.Length >= 8;
             if (!result.HasMinLength)
-                result.Errors.Add("8 caractères minimum");
+                result.Errors.Add("Minimum 8 characters");
 
             result.HasUppercase = Regex.IsMatch(password, @"[A-Z]");
             if (!result.HasUppercase)
-                result.Errors.Add("Au moins une majuscule");
+                result.Errors.Add("At least one uppercase letter");
 
             result.HasLowercase = Regex.IsMatch(password, @"[a-z]");
             if (!result.HasLowercase)
-                result.Errors.Add("Au moins une minuscule");
+                result.Errors.Add("At least one lowercase letter");
 
             result.HasDigit = Regex.IsMatch(password, @"[0-9]");
             if (!result.HasDigit)
-                result.Errors.Add("Au moins un chiffre");
+                result.Errors.Add("At least one digit");
 
             var specialCount = Regex.Matches(password, @"[!@#$%^&*()_+\-=\[\]{};':""\\|,.<>\/?~`]").Count;
             result.HasSpecialChars = specialCount >= 2;
             if (!result.HasSpecialChars)
-                result.Errors.Add($"Au moins 2 caractères spéciaux ({specialCount}/2)");
+                result.Errors.Add($"At least 2 special characters ({specialCount}/2)");
 
-            result.NoConsecutiveRepeat = !Regex.IsMatch(password, @"(.)\1");
+            result.NoConsecutiveRepeat = !Regex.IsMatch(password, @"(.)\1\1");
             if (!result.NoConsecutiveRepeat)
-                result.Errors.Add("Pas de caractère répété 2 fois de suite");
+                result.Errors.Add("No character repeated 3 times in a row");
 
             result.IsValid = result.HasMinLength &&
                             result.HasUppercase &&
@@ -194,33 +200,32 @@ namespace PPE.Modele
                             result.HasSpecialChars &&
                             result.NoConsecutiveRepeat;
 
-            // Déterminer la force et la couleur
             if (!result.IsValid)
             {
-                result.Strength = "Faible";
-                result.Color = "#F87171"; // Rouge
+                result.Strength = "Weak";
+                result.Color = "#F87171";
             }
             else if (password.Length >= 16)
             {
-                result.Strength = "Très fort";
-                result.Color = "#10B981"; // Vert foncé
+                result.Strength = "Very Strong";
+                result.Color = "#10B981";
             }
             else if (password.Length >= 12)
             {
-                result.Strength = "Fort";
-                result.Color = "#34D399"; // Vert
+                result.Strength = "Strong";
+                result.Color = "#34D399";
             }
             else
             {
-                result.Strength = "Correct";
-                result.Color = "#FBBF24"; // Jaune
+                result.Strength = "Fair";
+                result.Color = "#FBBF24";
             }
 
             return result;
         }
 
         /// <summary>
-        /// Calcule le pourcentage de progression pour la jauge
+        /// Calculates the strength percentage for the progress bar
         /// </summary>
         public static int GetPasswordStrengthPercentage(string password)
         {
@@ -242,17 +247,17 @@ namespace PPE.Modele
         }
 
         /// <summary>
-        /// Vérifie si un login existe déjà
+        /// Checks if a login already exists
         /// </summary>
         public static bool LoginExists(string login)
         {
-            var db = Connect.Instance();
+            var db = Connection.Instance();
 
             try
             {
                 if (!db.IsConnect()) return false;
 
-                using var cmd = new NpgsqlCommand("SELECT utilisateur_login_exists(@login)", db.Connection);
+                using var cmd = new NpgsqlCommand("SELECT utilisateur_login_exists(@login)", db.DbConnection);
                 cmd.Parameters.AddWithValue("@login", login);
 
                 var result = cmd.ExecuteScalar();
@@ -260,17 +265,17 @@ namespace PPE.Modele
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Erreur lors de la vérification du login : " + ex.Message);
+                Console.WriteLine("Error checking login: " + ex.Message);
                 return false;
             }
         }
 
         /// <summary>
-        /// Crée un nouveau compte utilisateur avec hash SHA512 + salage
+        /// Creates a new user account with SHA512 hash + salt
         /// </summary>
-        public bool CreerCompte(string password)
+        public bool CreateAccount(string password)
         {
-            var db = Connect.Instance();
+            var db = Connection.Instance();
 
             try
             {
@@ -279,21 +284,21 @@ namespace PPE.Modele
 
                 if (LoginExists(Login))
                 {
-                    Console.WriteLine("Erreur : ce login existe déjà");
+                    Console.WriteLine("Error: this login already exists");
                     return false;
                 }
 
                 var validation = ValidatePassword(password);
                 if (!validation.IsValid)
                 {
-                    Console.WriteLine("Erreur : mot de passe invalide");
+                    Console.WriteLine("Error: invalid password");
                     return false;
                 }
 
                 Id = Guid.NewGuid();
-                Password = Hashage.HashPassword(password);
+                Password = Hashing.HashPassword(password);
 
-                using var cmd = new NpgsqlCommand("CALL utilisateur_add(@id, @login, @password, @admin, @nom, @adresse, @ville, @code, @id_code)", db.Connection);
+                using var cmd = new NpgsqlCommand("CALL utilisateur_add(@id, @login, @password, @admin, @nom, @adresse, @ville, @code, @id_code)", db.DbConnection);
                 cmd.Parameters.AddWithValue("@id", Id.Value);
                 cmd.Parameters.AddWithValue("@login", Login);
                 cmd.Parameters.AddWithValue("@password", Password);
@@ -321,29 +326,29 @@ namespace PPE.Modele
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Erreur lors de la création du compte : " + ex.Message);
+                Console.WriteLine("Error creating account: " + ex.Message);
                 return false;
             }
         }
 
         /// <summary>
-        /// Authentifie un utilisateur avec login et mot de passe
+        /// Authenticates a user with login and password
         /// </summary>
-        public static Utilisateur? Authentifier(string login, string password)
+        public static User? Authenticate(string login, string password)
         {
-            var db = Connect.Instance();
+            var db = Connection.Instance();
 
             try
             {
                 if (!db.IsConnect()) return null;
 
-                using var cmd = new NpgsqlCommand("SELECT * FROM utilisateur_get_by_login(@login)", db.Connection);
+                using var cmd = new NpgsqlCommand("SELECT * FROM utilisateur_get_by_login(@login)", db.DbConnection);
                 cmd.Parameters.AddWithValue("@login", login);
 
                 using var reader = cmd.ExecuteReader();
                 if (reader.Read())
                 {
-                    var utilisateur = new Utilisateur
+                    var user = new User
                     {
                         Id = reader.GetGuid(0),
                         IdCode = reader.GetInt32(1),
@@ -353,13 +358,16 @@ namespace PPE.Modele
                         Nom = reader.IsDBNull(5) ? null : reader.GetString(5),
                         Adresse = reader.IsDBNull(6) ? null : reader.GetString(6),
                         Ville = reader.IsDBNull(7) ? null : reader.GetString(7),
-                        Code = reader.IsDBNull(8) ? null : reader.GetString(8)
+                        Code = reader.IsDBNull(8) ? null : reader.GetString(8),
+                        TotpSecret = reader.IsDBNull(9) ? null : reader.GetString(9),
+                        TotpEnabled = !reader.IsDBNull(10) && reader.GetBoolean(10),
+                        RecoveryCodes = reader.IsDBNull(11) ? null : reader.GetString(11)
                     };
 
-                    if (Hashage.VerifyPassword(password, utilisateur.Password!))
+                    if (Hashing.VerifyPassword(password, user.Password!))
                     {
-                        Current = utilisateur;
-                        return utilisateur;
+                        Current = user;
+                        return user;
                     }
                 }
 
@@ -367,29 +375,29 @@ namespace PPE.Modele
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Erreur lors de l'authentification : " + ex.Message);
+                Console.WriteLine("Error during authentication: " + ex.Message);
                 return null;
             }
         }
 
         /// <summary>
-        /// Liste tous les utilisateurs
+        /// Lists all users
         /// </summary>
-        public static List<Utilisateur> ListerTous()
+        public static List<User> ListAll()
         {
-            var utilisateurs = new List<Utilisateur>();
-            var db = Connect.Instance();
+            var users = new List<User>();
+            var db = Connection.Instance();
 
             try
             {
-                if (!db.IsConnect()) return utilisateurs;
+                if (!db.IsConnect()) return users;
 
-                using var cmd = new NpgsqlCommand("SELECT * FROM utilisateur_list()", db.Connection);
+                using var cmd = new NpgsqlCommand("SELECT * FROM utilisateur_list()", db.DbConnection);
                 using var reader = cmd.ExecuteReader();
 
                 while (reader.Read())
                 {
-                    utilisateurs.Add(new Utilisateur
+                    users.Add(new User
                     {
                         Id = reader.GetGuid(0),
                         IdCode = reader.GetInt32(1),
@@ -399,31 +407,34 @@ namespace PPE.Modele
                         Nom = reader.IsDBNull(5) ? null : reader.GetString(5),
                         Adresse = reader.IsDBNull(6) ? null : reader.GetString(6),
                         Ville = reader.IsDBNull(7) ? null : reader.GetString(7),
-                        Code = reader.IsDBNull(8) ? null : reader.GetString(8)
+                        Code = reader.IsDBNull(8) ? null : reader.GetString(8),
+                        TotpSecret = reader.IsDBNull(9) ? null : reader.GetString(9),
+                        TotpEnabled = !reader.IsDBNull(10) && reader.GetBoolean(10),
+                        RecoveryCodes = reader.IsDBNull(11) ? null : reader.GetString(11)
                     });
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Erreur lors de la lecture : " + ex.Message);
+                Console.WriteLine("Error reading users: " + ex.Message);
             }
 
-            return utilisateurs;
+            return users;
         }
 
         /// <summary>
-        /// Modifie les informations personnelles de l'utilisateur
+        /// Updates user personal information
         /// </summary>
-        public bool Modifier()
+        public bool Update()
         {
             if (Id == null) return false;
-            var db = Connect.Instance();
+            var db = Connection.Instance();
 
             try
             {
                 if (!db.IsConnect()) return false;
 
-                using var cmd = new NpgsqlCommand("CALL utilisateur_update(@id, @nom, @adresse, @ville, @code)", db.Connection);
+                using var cmd = new NpgsqlCommand("CALL utilisateur_update(@id, @nom, @adresse, @ville, @code)", db.DbConnection);
                 cmd.Parameters.AddWithValue("@id", Id.Value);
                 cmd.Parameters.AddWithValue("@nom", Nom ?? "");
                 cmd.Parameters.AddWithValue("@adresse", Adresse ?? "");
@@ -435,23 +446,51 @@ namespace PPE.Modele
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Erreur lors de la modification : " + ex.Message);
+                Console.WriteLine("Error updating user: " + ex.Message);
                 return false;
             }
         }
 
         /// <summary>
-        /// Supprime un utilisateur
+        /// Updates user 2FA settings
         /// </summary>
-        public static bool Supprimer(Guid id)
+        public bool Update2FA()
         {
-            var db = Connect.Instance();
+            if (Id == null) return false;
+            var db = Connection.Instance();
 
             try
             {
                 if (!db.IsConnect()) return false;
 
-                using var cmd = new NpgsqlCommand("CALL utilisateur_delete(@id)", db.Connection);
+                using var cmd = new NpgsqlCommand("CALL utilisateur_update_2fa(@id, @totp_secret, @totp_enabled, @recovery_codes)", db.DbConnection);
+                cmd.Parameters.AddWithValue("@id", Id.Value);
+                cmd.Parameters.AddWithValue("@totp_secret", (object?)TotpSecret ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@totp_enabled", TotpEnabled);
+                cmd.Parameters.AddWithValue("@recovery_codes", (object?)RecoveryCodes ?? DBNull.Value);
+
+                cmd.ExecuteNonQuery();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error updating 2FA: " + ex.Message);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Deletes a user
+        /// </summary>
+        public static bool Delete(Guid id)
+        {
+            var db = Connection.Instance();
+
+            try
+            {
+                if (!db.IsConnect()) return false;
+
+                using var cmd = new NpgsqlCommand("CALL utilisateur_delete(@id)", db.DbConnection);
                 cmd.Parameters.AddWithValue("@id", id);
 
                 cmd.ExecuteNonQuery();
@@ -459,8 +498,51 @@ namespace PPE.Modele
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Erreur lors de la suppression : " + ex.Message);
+                Console.WriteLine("Error deleting user: " + ex.Message);
                 return false;
+            }
+        }
+
+        /// <summary>
+        /// Changes user password with verification of last 3 passwords history
+        /// </summary>
+        /// <returns>0 = success, 1 = password in history, 2 = error</returns>
+        public int ChangePassword(string newPassword)
+        {
+            if (Id == null) return 2;
+            var db = Connection.Instance();
+
+            try
+            {
+                if (!db.IsConnect()) return 2;
+
+                // Validate new password
+                var validation = ValidatePassword(newPassword);
+                if (!validation.IsValid) return 2;
+
+                // Hash new password
+                var newPasswordHash = Hashing.HashPassword(newPassword);
+
+                // Call SQL function that verifies history and changes password
+                using var cmd = new NpgsqlCommand("SELECT utilisateur_change_password(@user_id, @new_password_hash)", db.DbConnection);
+                cmd.Parameters.AddWithValue("@user_id", Id.Value);
+                cmd.Parameters.AddWithValue("@new_password_hash", newPasswordHash);
+
+                var result = cmd.ExecuteScalar();
+                var returnCode = result != null ? Convert.ToInt32(result) : 2;
+
+                // If success, update local password
+                if (returnCode == 0)
+                {
+                    Password = newPasswordHash;
+                }
+
+                return returnCode;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error changing password: " + ex.Message);
+                return 2;
             }
         }
     }

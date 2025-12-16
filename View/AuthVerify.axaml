@@ -1,0 +1,34 @@
+<Window xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="using:FluentAvalonia.UI.Controls"
+    x:Class="PPE.Controller.AuthVerify"
+    Title="2FA Verification"
+    WindowStartupLocation="CenterOwner"
+    SizeToContent="Height"
+    CanResize="False"
+    Width="380"
+>
+    <Border Padding="24">
+        <StackPanel Spacing="16">
+            <TextBlock Text="Two-Factor Verification" FontSize="20" FontWeight="SemiBold"/>
+
+            <TextBlock
+                Text="Enter the 6-digit code from your authenticator app or a recovery code."
+                TextWrapping="Wrap"
+                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+            />
+
+            <StackPanel Spacing="6">
+                <TextBlock Text="Verification code" FontSize="12"/>
+                <TextBox x:Name="_codeInput" Watermark="000000" HorizontalContentAlignment="Center"/>
+            </StackPanel>
+
+            <ui:InfoBar x:Name="_error" Severity="Error" IsOpen="False" IsClosable="False"/>
+
+            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Spacing="8">
+                <Button x:Name="_cancel" Content="Cancel"/>
+                <Button x:Name="_verify" Content="Verify" Classes="accent"/>
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</Window>

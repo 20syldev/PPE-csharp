@@ -1,0 +1,100 @@
+<Window xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="using:FluentAvalonia.UI.Controls"
+    x:Class="PPE.Controller.Settings"
+    Title="Settings"
+    WindowStartupLocation="CenterOwner"
+    SizeToContent="Height"
+    CanResize="False"
+    Width="500"
+>
+    <Border Padding="24">
+        <StackPanel Spacing="20">
+            <TextBlock
+                Text="Settings"
+                FontSize="24"
+                FontWeight="SemiBold"
+            />
+
+            <!-- Security Section -->
+            <ui:SettingsExpander
+                Header="Security"
+                Description="Password and two-factor authentication"
+                IsExpanded="False"
+            >
+                <ui:SettingsExpander.IconSource>
+                    <ui:SymbolIconSource Symbol="{x:Static ui:Symbol.Permissions}"/>
+                </ui:SettingsExpander.IconSource>
+                <ui:SettingsExpander.Items>
+                    <ui:SettingsExpanderItem>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="Change password" VerticalAlignment="Center"/>
+                            <Button x:Name="_changePassword" Grid.Column="1" Content="Change"/>
+                        </Grid>
+                    </ui:SettingsExpanderItem>
+                    <ui:SettingsExpanderItem>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="Two-factor authentication" VerticalAlignment="Center"/>
+                            <Button x:Name="_twoFA" Grid.Column="1" Content="Configure"/>
+                        </Grid>
+                    </ui:SettingsExpanderItem>
+                </ui:SettingsExpander.Items>
+            </ui:SettingsExpander>
+
+            <!-- Profile Section -->
+            <Border
+                Padding="16"
+                CornerRadius="8"
+                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                BorderThickness="1"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+            >
+                <StackPanel Spacing="16">
+                    <TextBlock
+                        Text="My profile"
+                        FontSize="16"
+                        FontWeight="SemiBold"
+                    />
+
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Name" FontSize="12"/>
+                        <TextBox x:Name="_nom"/>
+                    </StackPanel>
+
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Address" FontSize="12"/>
+                        <TextBox x:Name="_adr"/>
+                    </StackPanel>
+
+                    <Grid ColumnDefinitions="*,12,Auto">
+                        <StackPanel Grid.Column="0" Spacing="6">
+                            <TextBlock Text="City" FontSize="12"/>
+                            <TextBox x:Name="_ville"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Spacing="6">
+                            <TextBlock Text="Postal code" FontSize="12"/>
+                            <TextBox x:Name="_code" Width="100" Watermark="75001"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <ui:InfoBar
+                        x:Name="_codeError"
+                        Severity="Error"
+                        IsOpen="False"
+                        IsClosable="False"
+                    />
+                </StackPanel>
+            </Border>
+
+            <!-- Buttons -->
+            <StackPanel
+                HorizontalAlignment="Right"
+                Orientation="Horizontal"
+                Spacing="8"
+            >
+                <Button x:Name="_cancel" Content="Cancel"/>
+                <Button x:Name="_save" Content="Save" Classes="accent"/>
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</Window>

@@ -1,11 +1,11 @@
 using System.Text;
 using System.Security.Cryptography;
 
-namespace PPE.Modele
+namespace PPE.Utility
 {
-    public class Hashage
+    public class Hashing
     {
-        // Génère le hash SHA-512 d'une chaîne
+        // Generates SHA-512 hash of a string
         private static string Hash(string input)
         {
             byte[] bytes = Encoding.UTF8.GetBytes(input);
@@ -18,14 +18,14 @@ namespace PPE.Modele
             return result.ToString();
         }
 
-        // Génère un sel aléatoire
+        // Generates random salt
         private static string Salt(int size = 32)
         {
             byte[] saltBytes = RandomNumberGenerator.GetBytes(size);
             return Convert.ToBase64String(saltBytes);
         }
 
-        // Hash un mot de passe (retourne hash:salt)
+        // Hashes a password (returns hash:salt)
         public static string HashPassword(string password)
         {
             string salt = Salt();
@@ -33,7 +33,7 @@ namespace PPE.Modele
             return $"{hash}:{salt}";
         }
 
-        // Vérifie un mot de passe contre un hash
+        // Verifies a password against a hash
         public static bool VerifyPassword(string password, string hashWithSalt)
         {
             string[] parts = hashWithSalt.Split(':');

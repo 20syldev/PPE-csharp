@@ -1,35 +1,34 @@
 using Avalonia;
-using Avalonia.Themes.Fluent;
 using DotNetEnv;
-using PPE.Controlleur;
-using PPE.Modele;
+using PPE.Controller;
+using PPE.Model;
 
-// Charger le fichier .env
+// Load .env file
 Env.Load();
 
-// Configuration de la base de données
-var db = Connect.Instance();
+// Database configuration
+var db = PPE.Model.Connection.Instance();
 db.Server = Env.GetString("PPE_DB_HOST", "localhost");
 db.Port = Env.GetInt("PPE_DB_PORT", 5432);
 db.DatabaseName = Env.GetString("PPE_DB_NAME", "ppe");
 db.UserName = Env.GetString("PPE_DB_USER", "ppe");
 db.Password = Env.GetString("PPE_DB_PASSWORD", "");
 
-// Connexion à la BDD
+// Connect to database
 try {
     db.IsConnect();
 }
 catch (Exception ex) {
-    Console.WriteLine("Erreur de connexion: " + ex.Message);
+    Console.WriteLine("Connection error: " + ex.Message);
 }
 
-// Lancement de l'interface graphique Avalonia
+// Launch Avalonia GUI
 AppBuilder.Configure<App>()
     .UsePlatformDetect()
     .WithInterFont()
     .AfterSetup(builder =>
     {
-        builder.Instance!.Styles.Add(new FluentTheme());
+        // DataGrid theme for FluentAvalonia
         builder.Instance!.Styles.Add(new Avalonia.Markup.Xaml.Styling.StyleInclude(new Uri("avares://PPE"))
         {
             Source = new Uri("avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml")

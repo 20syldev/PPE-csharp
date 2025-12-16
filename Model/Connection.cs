@@ -1,10 +1,10 @@
 using Npgsql;
 
-namespace PPE.Modele
+namespace PPE.Model
 {
-    public class Connect
+    public class Connection
     {
-        public Connect() {}
+        public Connection() {}
 
         public string? Server { get; set; }
         public string? DatabaseName { get; set; }
@@ -12,18 +12,18 @@ namespace PPE.Modele
         public string? Password { get; set; }
         public int Port { get; set; } = 5432;
 
-        public NpgsqlConnection? Connection { get; set; }
+        public NpgsqlConnection? DbConnection { get; set; }
 
-        private static Connect? _instance = null;
-        public static Connect Instance()
+        private static Connection? _instance = null;
+        public static Connection Instance()
         {
-            _instance ??= new Connect();
+            _instance ??= new Connection();
             return _instance;
         }
 
         public bool IsConnect()
         {
-            if (Connection == null)
+            if (DbConnection == null)
             {
                 if (string.IsNullOrEmpty(DatabaseName)) return false;
 
@@ -35,8 +35,8 @@ namespace PPE.Modele
                     Username = UserName,
                     Password = Password
                 };
-                Connection = new NpgsqlConnection(builder.ConnectionString);
-                Connection.Open();
+                DbConnection = new NpgsqlConnection(builder.ConnectionString);
+                DbConnection.Open();
             }
 
             return true;
@@ -44,7 +44,7 @@ namespace PPE.Modele
 
         public void Close()
         {
-            Connection?.Close();
+            DbConnection?.Close();
         }
     }
 }

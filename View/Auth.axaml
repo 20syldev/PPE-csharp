@@ -1,0 +1,188 @@
+<Window xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="using:FluentAvalonia.UI.Controls"
+    x:Class="PPE.Controller.Auth"
+    Title="Two-Factor Authentication"
+    WindowStartupLocation="CenterOwner"
+    SizeToContent="Height"
+    CanResize="False"
+    Width="420"
+>
+    <Border Padding="24">
+        <StackPanel Spacing="16">
+            <TextBlock
+                Text="Two-Factor Authentication"
+                FontSize="20"
+                FontWeight="SemiBold"
+            />
+
+            <!-- Panel: Disabled -->
+            <StackPanel x:Name="_panelDisabled" Spacing="16" IsVisible="False">
+                <ui:InfoBar
+                    Title="Not enabled"
+                    Message="Two-factor authentication is not enabled on your account."
+                    Severity="Informational"
+                    IsOpen="True"
+                    IsClosable="False"
+                />
+                <Button
+                    x:Name="_btnEnable"
+                    Content="Enable 2FA"
+                    Classes="accent"
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Center"
+                />
+            </StackPanel>
+
+            <!-- Panel: Setup -->
+            <StackPanel x:Name="_panelSetup" Spacing="16" IsVisible="False">
+                <TextBlock
+                    Text="Scan this QR code with your authenticator app"
+                    TextWrapping="Wrap"
+                    Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                />
+
+                <Border
+                    Background="White"
+                    CornerRadius="8"
+                    Padding="16"
+                    HorizontalAlignment="Center"
+                >
+                    <Image x:Name="_qrCodeImage" Width="180" Height="180"/>
+                </Border>
+
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Or enter manually:" FontSize="12"/>
+                    <Border
+                        Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                        CornerRadius="4"
+                        Padding="12"
+                    >
+                        <SelectableTextBlock
+                            x:Name="_secretKey"
+                            FontFamily="Consolas, monospace"
+                            HorizontalAlignment="Center"
+                        />
+                    </Border>
+                </StackPanel>
+
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Enter verification code:" FontSize="12"/>
+                    <TextBox x:Name="_verifyCode" Watermark="000000" MaxLength="6" HorizontalContentAlignment="Center"/>
+                </StackPanel>
+
+                <ui:InfoBar
+                    x:Name="_setupError"
+                    Severity="Error"
+                    IsOpen="False"
+                    IsClosable="False"
+                />
+
+                <Button
+                    x:Name="_btnVerify"
+                    Content="Verify and enable"
+                    Classes="accent"
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Center"
+                />
+            </StackPanel>
+
+            <!-- Panel: Recovery Codes -->
+            <StackPanel x:Name="_panelRecoveryCodes" Spacing="16" IsVisible="False">
+                <ui:InfoBar
+                    Title="Save your codes"
+                    Message="Each recovery code can only be used once."
+                    Severity="Warning"
+                    IsOpen="True"
+                    IsClosable="False"
+                />
+
+                <Border
+                    Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                    CornerRadius="8"
+                    Padding="16"
+                >
+                    <StackPanel x:Name="_recoveryCodesList" Spacing="6"/>
+                </Border>
+
+                <Button
+                    x:Name="_btnSaveCodes"
+                    Content="Save to file"
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Center"
+                />
+                <Button
+                    x:Name="_btnContinue"
+                    Content="I have saved my codes"
+                    Classes="accent"
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Center"
+                />
+            </StackPanel>
+
+            <!-- Panel: Enabled -->
+            <StackPanel x:Name="_panelEnabled" Spacing="16" IsVisible="False">
+                <ui:InfoBar
+                    Title="2FA is enabled"
+                    Message="Your account is protected with two-factor authentication."
+                    Severity="Success"
+                    IsOpen="True"
+                    IsClosable="False"
+                />
+
+                <TextBlock
+                    x:Name="_remainingCodes"
+                    Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                />
+
+                <StackPanel Spacing="8">
+                    <Button
+                        x:Name="_btnRegenerate"
+                        Content="Regenerate recovery codes"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Center"
+                    />
+                    <Button
+                        x:Name="_btnDisable"
+                        Content="Disable 2FA"
+                        Classes="danger"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Center"
+                    />
+                </StackPanel>
+            </StackPanel>
+
+            <!-- Panel: Password -->
+            <StackPanel x:Name="_panelPassword" Spacing="16" IsVisible="False">
+                <TextBlock
+                    x:Name="_passwordPrompt"
+                    TextWrapping="Wrap"
+                />
+
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Password" FontSize="12"/>
+                    <TextBox x:Name="_passwordInput" PasswordChar="*"/>
+                </StackPanel>
+
+                <ui:InfoBar
+                    x:Name="_passwordError"
+                    Severity="Error"
+                    IsOpen="False"
+                    IsClosable="False"
+                />
+
+                <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Spacing="8">
+                    <Button x:Name="_btnPasswordCancel" Content="Cancel"/>
+                    <Button x:Name="_btnPasswordConfirm" Content="Confirm" Classes="accent"/>
+                </StackPanel>
+            </StackPanel>
+
+            <!-- Close -->
+            <Button
+                x:Name="_btnClose"
+                Content="Close"
+                HorizontalAlignment="Right"
+            />
+        </StackPanel>
+    </Border>
+</Window>

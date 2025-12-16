@@ -1,0 +1,195 @@
+<Window xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="using:FluentAvalonia.UI.Controls"
+    x:Class="PPE.Controller.Admin"
+    Title="Administration"
+    WindowStartupLocation="CenterScreen"
+    MinWidth="900"
+    MinHeight="550"
+    Width="1100"
+    Height="700"
+    Background="{DynamicResource ApplicationPageBackgroundThemeBrush}"
+    TransparencyLevelHint="None"
+>
+    <Window.Styles>
+        <Style Selector="DataGridColumnHeader">
+            <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="12,8"/>
+        </Style>
+    </Window.Styles>
+    <ui:NavigationView
+        x:Name="_nav"
+        PaneDisplayMode="LeftCompact"
+        IsBackButtonVisible="False"
+        IsPaneToggleButtonVisible="True"
+        IsSettingsVisible="False"
+        OpenPaneLength="200"
+        CompactPaneLength="48"
+    >
+        <ui:NavigationView.MenuItems>
+            <ui:NavigationViewItem Content="Home" Tag="home" IsSelected="True">
+                <ui:NavigationViewItem.IconSource>
+                    <ui:SymbolIconSource Symbol="{x:Static ui:Symbol.Home}"/>
+                </ui:NavigationViewItem.IconSource>
+            </ui:NavigationViewItem>
+            <ui:NavigationViewItem Content="Users" Tag="users">
+                <ui:NavigationViewItem.IconSource>
+                    <ui:SymbolIconSource Symbol="{x:Static ui:Symbol.People}"/>
+                </ui:NavigationViewItem.IconSource>
+            </ui:NavigationViewItem>
+        </ui:NavigationView.MenuItems>
+
+        <ui:NavigationView.FooterMenuItems>
+            <ui:NavigationViewItem x:Name="_settings" Content="Settings" Tag="settings">
+                <ui:NavigationViewItem.IconSource>
+                    <ui:SymbolIconSource Symbol="{x:Static ui:Symbol.Setting}"/>
+                </ui:NavigationViewItem.IconSource>
+            </ui:NavigationViewItem>
+            <ui:NavigationViewItem x:Name="_logout" Content="Logout" Tag="logout">
+                <ui:NavigationViewItem.IconSource>
+                    <ui:SymbolIconSource Symbol="{x:Static ui:Symbol.LeaveChat}"/>
+                </ui:NavigationViewItem.IconSource>
+            </ui:NavigationViewItem>
+        </ui:NavigationView.FooterMenuItems>
+
+        <!-- Content -->
+        <Grid x:Name="_content">
+            <!-- Home Page -->
+            <StackPanel
+                x:Name="_pageHome"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Spacing="12"
+            >
+                <TextBlock
+                    Text="Welcome!"
+                    FontSize="36"
+                    FontWeight="SemiBold"
+                    HorizontalAlignment="Center"
+                />
+                <TextBlock
+                    x:Name="_welcomeUser"
+                    FontSize="14"
+                    Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                    HorizontalAlignment="Center"
+                />
+            </StackPanel>
+
+            <!-- Users Page -->
+            <DockPanel
+                x:Name="_pageUsers"
+                IsVisible="False"
+                Margin="24"
+            >
+                <!-- Toolbar -->
+                <StackPanel DockPanel.Dock="Top" Spacing="16" Margin="0,0,0,16">
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <TextBlock
+                                Text="Users"
+                                FontSize="20"
+                                FontWeight="SemiBold"
+                                VerticalAlignment="Center"
+                            />
+                            <TextBlock
+                                x:Name="_count"
+                                FontSize="14"
+                                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                VerticalAlignment="Center"
+                            />
+                        </StackPanel>
+
+                        <TextBox
+                            x:Name="_search"
+                            Grid.Column="1"
+                            Watermark="Search..."
+                            Margin="24,0"
+                        />
+
+                        <StackPanel
+                            Grid.Column="2"
+                            Orientation="Horizontal"
+                            Spacing="8"
+                        >
+                            <ComboBox
+                                x:Name="_filter"
+                                SelectedIndex="0"
+                                MinWidth="130"
+                            >
+                                <ComboBoxItem>All</ComboBoxItem>
+                                <ComboBoxItem>Name</ComboBoxItem>
+                                <ComboBoxItem>City</ComboBoxItem>
+                                <ComboBoxItem>Postal Code</ComboBoxItem>
+                            </ComboBox>
+                            <Button x:Name="_btnRefresh" Content="Refresh"/>
+                            <Button x:Name="_btnDel" Content="Delete" Classes="danger" IsVisible="False"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+
+                <!-- DataGrid -->
+                <Border
+                    CornerRadius="8"
+                    BorderThickness="1"
+                    BorderBrush="{DynamicResource DividerStrokeColorDefaultBrush}"
+                    ClipToBounds="True"
+                >
+                    <DataGrid
+                        x:Name="_grid"
+                        GridLinesVisibility="Horizontal"
+                        HeadersVisibility="All"
+                        ColumnHeaderHeight="36"
+                        AutoGenerateColumns="False"
+                        CanUserResizeColumns="True"
+                        CanUserSortColumns="True"
+                        SelectionMode="Single"
+                        IsReadOnly="True"
+                    >
+                        <DataGrid.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem x:Name="_menuShowPassword" Header="Show password"/>
+                                <MenuItem x:Name="_menuShowCode" Header="Show code"/>
+                            </ContextMenu>
+                        </DataGrid.ContextMenu>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Login" Binding="{Binding Login}" Width="180"/>
+                            <DataGridTextColumn Header="Name" Binding="{Binding Nom}" Width="*"/>
+                            <DataGridTextColumn Header="Address" Binding="{Binding Adresse}" Width="2*"/>
+                            <DataGridTextColumn Header="City" Binding="{Binding Ville}" Width="*"/>
+                            <DataGridTextColumn Header="Code" Binding="{Binding Code}" Width="90"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Border>
+
+                <!-- Empty states -->
+                <StackPanel
+                    x:Name="_emptyState"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    IsVisible="False"
+                >
+                    <TextBlock
+                        Text="No users"
+                        FontSize="18"
+                        Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                    />
+                </StackPanel>
+
+                <StackPanel
+                    x:Name="_noResults"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    IsVisible="False"
+                >
+                    <TextBlock
+                        Text="No results"
+                        FontSize="18"
+                        Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                    />
+                </StackPanel>
+            </DockPanel>
+        </Grid>
+    </ui:NavigationView>
+</Window>

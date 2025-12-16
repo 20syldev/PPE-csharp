@@ -1,0 +1,44 @@
+<Window xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="using:FluentAvalonia.UI.Controls"
+    x:Class="PPE.Controller.Edit"
+    Title="Edit User"
+    WindowStartupLocation="CenterOwner"
+    SizeToContent="Height"
+    CanResize="False"
+    Width="380"
+>
+    <Border Padding="24">
+        <StackPanel Spacing="16">
+            <TextBlock x:Name="_title" Text="Edit User" FontSize="20" FontWeight="SemiBold"/>
+
+            <StackPanel Spacing="6">
+                <TextBlock Text="Name" FontSize="12"/>
+                <TextBox x:Name="_nom"/>
+            </StackPanel>
+
+            <StackPanel Spacing="6">
+                <TextBlock Text="Address" FontSize="12"/>
+                <TextBox x:Name="_adr"/>
+            </StackPanel>
+
+            <Grid ColumnDefinitions="*,12,Auto">
+                <StackPanel Grid.Column="0" Spacing="6">
+                    <TextBlock Text="City" FontSize="12"/>
+                    <TextBox x:Name="_ville"/>
+                </StackPanel>
+                <StackPanel Grid.Column="2" Spacing="6">
+                    <TextBlock Text="Postal code" FontSize="12"/>
+                    <TextBox x:Name="_code" Width="100" Watermark="75001"/>
+                </StackPanel>
+            </Grid>
+
+            <ui:InfoBar x:Name="_codeError" Severity="Error" IsOpen="False" IsClosable="False"/>
+
+            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Spacing="8">
+                <Button x:Name="_cancel" Content="Cancel"/>
+                <Button x:Name="_save" Content="Save" Classes="accent"/>
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</Window>

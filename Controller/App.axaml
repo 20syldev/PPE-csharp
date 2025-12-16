@@ -1,0 +1,49 @@
+<Application xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:sty="using:FluentAvalonia.Styling"
+    x:Class="PPE.Controller.App"
+>
+    <Application.Styles>
+        <!-- FluentAvalonia Theme -->
+        <sty:FluentAvaloniaTheme/>
+
+        <!-- Custom button styles -->
+        <Style Selector="Button.primary">
+            <Setter Property="Background" Value="#6374d6"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="Button.primary:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#657beb"/>
+        </Style>
+        <Style Selector="Button.primary:pressed /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#5168d4"/>
+        </Style>
+
+        <Style Selector="Button.danger">
+            <Setter Property="Background" Value="#5A2D2D"/>
+            <Setter Property="Foreground" Value="#F87171"/>
+        </Style>
+        <Style Selector="Button.danger:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#7A3D3D"/>
+        </Style>
+        <Style Selector="Button.danger:pressed /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#4A2020"/>
+        </Style>
+
+        <Style Selector="Button.secondary">
+            <Setter Property="Background" Value="#3C3C3C"/>
+            <Setter Property="Foreground" Value="#E0E0E0"/>
+        </Style>
+        <Style Selector="Button.secondary:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#4C4C4C"/>
+        </Style>
+        <Style Selector="Button.secondary:pressed /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#333333"/>
+        </Style>
+
+        <!-- TextBox watermark -->
+        <Style Selector="TextBox /template/ TextBlock#PART_Watermark">
+            <Setter Property="Opacity" Value="0.4"/>
+        </Style>
+    </Application.Styles>
+</Application>

@@ -1,0 +1,133 @@
+<Window xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="using:FluentAvalonia.UI.Controls"
+    x:Class="PPE.Controller.Login"
+    Title="Login"
+    WindowStartupLocation="CenterScreen"
+    SizeToContent="Height"
+    CanResize="False"
+    Width="420"
+>
+    <Border Padding="32">
+        <StackPanel Spacing="20">
+            <!-- Title -->
+            <StackPanel Spacing="4">
+                <TextBlock
+                    Text="Welcome"
+                    FontSize="28"
+                    FontWeight="SemiBold"
+                    HorizontalAlignment="Center"
+                />
+                <TextBlock
+                    Text="Sign in to continue"
+                    FontSize="14"
+                    Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                    HorizontalAlignment="Center"
+                />
+            </StackPanel>
+
+            <!-- Toggle Sign In / Register -->
+            <StackPanel
+                HorizontalAlignment="Center"
+                Orientation="Horizontal"
+                Spacing="8"
+            >
+                <Button
+                    x:Name="_tabLogin"
+                    Content="Sign In"
+                />
+                <Button
+                    x:Name="_tabRegister"
+                    Content="Create Account"
+                />
+            </StackPanel>
+
+            <!-- Email -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="Email" FontSize="12"/>
+                <TextBox
+                    x:Name="_login"
+                    Watermark="name@domain.com"
+                />
+                <ui:InfoBar
+                    x:Name="_loginError"
+                    Severity="Error"
+                    IsOpen="False"
+                    IsClosable="False"
+                />
+            </StackPanel>
+
+            <!-- Password -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="Password" FontSize="12"/>
+                <TextBox
+                    x:Name="_password"
+                    PasswordChar="*"
+                />
+            </StackPanel>
+
+            <!-- Confirm password (register only) -->
+            <StackPanel
+                x:Name="_confirmPanel"
+                Spacing="6"
+                IsVisible="False"
+            >
+                <TextBlock Text="Confirm password" FontSize="12"/>
+                <TextBox
+                    x:Name="_confirmPassword"
+                    PasswordChar="*"
+                />
+            </StackPanel>
+
+            <!-- Password strength (register only) -->
+            <StackPanel
+                x:Name="_strengthPanel"
+                Spacing="8"
+                IsVisible="False"
+            >
+                <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock Text="Password strength" FontSize="12"/>
+                    <TextBlock
+                        x:Name="_strengthText"
+                        Grid.Column="1"
+                        FontSize="12"
+                        FontWeight="SemiBold"
+                    />
+                </Grid>
+                <ProgressBar
+                    x:Name="_strengthBar"
+                    Height="4"
+                    Minimum="0"
+                    Maximum="100"
+                    Value="0"
+                />
+                <StackPanel Spacing="4">
+                    <TextBlock x:Name="_critMin" Text="• 8 characters minimum" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    <TextBlock x:Name="_critUpper" Text="• One uppercase" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    <TextBlock x:Name="_critLower" Text="• One lowercase" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    <TextBlock x:Name="_critDigit" Text="• One digit" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    <TextBlock x:Name="_critSpecial" Text="• 2 special characters" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                    <TextBlock x:Name="_critRepeat" Text="• No repetition" FontSize="11" Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                </StackPanel>
+            </StackPanel>
+
+            <!-- Error -->
+            <ui:InfoBar
+                x:Name="_error"
+                Severity="Error"
+                IsOpen="False"
+                IsClosable="True"
+            />
+
+            <!-- Submit button -->
+            <Button
+                x:Name="_submit"
+                Content="Sign In"
+                Classes="accent"
+                HorizontalAlignment="Stretch"
+                HorizontalContentAlignment="Center"
+                Margin="0,8,0,0"
+            />
+        </StackPanel>
+    </Border>
+</Window>
