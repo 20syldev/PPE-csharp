@@ -545,5 +545,70 @@ namespace PPE.Model
                 return 2;
             }
         }
+
+        /// <summary>
+        /// Gets the date of the last password change from password_history
+        /// </summary>
+        public DateTime? GetLastPasswordChange()
+        {
+            if (Id == null) return null;
+            var db = Connection.Instance();
+
+            try
+            {
+                if (!db.IsConnect()) return null;
+
+                using var cmd = new NpgsqlCommand(
+                    "SELECT created_at FROM password_history WHERE user_id = @user_id ORDER BY created_at DESC LIMIT 1",
+                    db.DbConnection);
+                cmd.Parameters.AddWithValue("@user_id", Id.Value);
+
+                var result = cmd.ExecuteScalar();
+                return result as DateTime?;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error getting last password change: " + ex.Message);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Checks if a password matches the current password or any of the last 3 passwords in history
+        /// </summary>
+        public bool IsPasswordInHistory(string password)
+        {
+            // Check current password
+            if (Hashing.VerifyPassword(password, Password ?? ""))
+                return true;
+
+            if (Id == null) return false;
+            var db = Connection.Instance();
+
+            try
+            {
+                if (!db.IsConnect()) return false;
+
+                using var cmd = new NpgsqlCommand(
+                    "SELECT password_hash FROM password_history WHERE user_id = @user_id ORDER BY created_at DESC LIMIT 3",
+                    db.DbConnection);
+                cmd.Parameters.AddWithValue("@user_id", Id.Value);
+
+                using var reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    var hash = reader.GetString(0);
+                    if (Hashing.VerifyPassword(password, hash))
+                        return true;
+                }
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error checking password history: " + ex.Message);
+                return false;
+            }
+        }
     }
 }

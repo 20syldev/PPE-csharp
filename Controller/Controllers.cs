@@ -463,9 +463,20 @@ namespace PPE.Controller
             _ville.Text = user.Ville;
             _code.Text = user.Code;
 
+            UpdateLastChanged();
+
+            _success.Closed += (s, e) => _success.IsVisible = false;
+
             _changePassword.Click += async (s, e) =>
             {
-                await new Password().ShowDialog(this);
+                var result = await new Password().ShowDialog<bool?>(this);
+                if (result == true)
+                {
+                    _success.Message = "Password changed successfully";
+                    _success.IsVisible = true;
+                    _success.IsOpen = true;
+                    UpdateLastChanged();
+                }
             };
 
             _twoFA.Click += async (s, e) =>
@@ -509,6 +520,14 @@ namespace PPE.Controller
                     Code = _code.Text
                 });
             };
+        }
+
+        private void UpdateLastChanged()
+        {
+            var lastChanged = _user.GetLastPasswordChange();
+            _lastChanged.Text = lastChanged.HasValue
+                ? $"Last changed: {lastChanged.Value:MMM d, yyyy}"
+                : "Never changed";
         }
     }
 
@@ -808,6 +827,13 @@ namespace PPE.Controller
             text.Foreground = color;
         }
 
+        private void ShowError(string message)
+        {
+            _error.Message = message;
+            _error.IsOpen = true;
+            _warning.IsOpen = false;
+        }
+
         private void ChangePassword()
         {
             if (User.Current == null) return;
@@ -818,42 +844,44 @@ namespace PPE.Controller
 
             if (!Hashing.VerifyPassword(current, User.Current.Password ?? ""))
             {
-                _error.Message = "Current password is incorrect";
-                _error.IsOpen = true;
+                ShowError("Current password is incorrect");
                 return;
             }
 
-            if (newPwd != confirm)
-            {
-                _error.Message = "Passwords do not match";
-                _error.IsOpen = true;
-                return;
-            }
-
+            // 1. Validate password criteria first
             var validation = User.ValidatePassword(newPwd);
             if (!validation.IsValid)
             {
-                _error.Message = "Password does not meet the criteria";
-                _error.IsOpen = true;
+                ShowError("Password does not meet the criteria");
+                return;
+            }
+
+            // 2. Check passwords match
+            if (newPwd != confirm)
+            {
+                ShowError("Passwords do not match");
+                return;
+            }
+
+            // 3. Check not reusing current or recent passwords
+            if (User.Current.IsPasswordInHistory(newPwd))
+            {
+                ShowError("Cannot reuse your last 3 passwords");
                 return;
             }
 
             var result = User.Current.ChangePassword(newPwd);
             if (result == 0)
             {
-                _success.Message = "Password changed successfully";
-                _success.IsOpen = true;
-                _error.IsOpen = false;
+                Close(true);
             }
             else if (result == 1)
             {
-                _error.Message = "Cannot reuse recent passwords";
-                _error.IsOpen = true;
+                ShowError("Cannot reuse recent passwords");
             }
             else
             {
-                _error.Message = "Error changing password";
-                _error.IsOpen = true;
+                ShowError("Error changing password");
             }
         }
     }

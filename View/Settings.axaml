@@ -16,6 +16,14 @@
                 FontWeight="SemiBold"
             />
 
+            <ui:InfoBar
+                x:Name="_success"
+                Severity="Success"
+                IsOpen="False"
+                IsVisible="False"
+                IsClosable="True"
+            />
+
             <!-- Security Section -->
             <ui:SettingsExpander
                 Header="Security"
@@ -28,7 +36,10 @@
                 <ui:SettingsExpander.Items>
                     <ui:SettingsExpanderItem>
                         <Grid ColumnDefinitions="*,Auto">
-                            <TextBlock Text="Change password" VerticalAlignment="Center"/>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Change password"/>
+                                <TextBlock x:Name="_lastChanged" FontSize="11" Opacity="0.6"/>
+                            </StackPanel>
                             <Button x:Name="_changePassword" Grid.Column="1" Content="Change"/>
                         </Grid>
                     </ui:SettingsExpanderItem>
