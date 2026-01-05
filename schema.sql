@@ -172,6 +172,20 @@ BEGIN
 END;
 $$;
 
+-- Procédure de mise à jour du statut admin
+CREATE OR REPLACE PROCEDURE utilisateur_update_admin(
+    p_id UUID,
+    p_admin BOOLEAN
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    UPDATE utilisateur
+    SET admin = p_admin
+    WHERE id = p_id;
+END;
+$$;
+
 -- ============================================
 -- TABLE HISTORIQUE DES MOTS DE PASSE
 -- ============================================
