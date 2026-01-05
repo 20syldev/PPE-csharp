@@ -47,7 +47,7 @@
                     <ui:SymbolIconSource Symbol="{x:Static ui:Symbol.Setting}"/>
                 </ui:NavigationViewItem.IconSource>
             </ui:NavigationViewItem>
-            <ui:NavigationViewItem x:Name="_logout" Content="Logout" Tag="logout">
+            <ui:NavigationViewItem x:Name="_logout" Content="Logout" Tag="logout" ToolTip.Placement="Right">
                 <ui:NavigationViewItem.IconSource>
                     <ui:SymbolIconSource Symbol="{x:Static ui:Symbol.LeaveChat}"/>
                 </ui:NavigationViewItem.IconSource>
@@ -147,15 +147,30 @@
                         SelectionMode="Single"
                         IsReadOnly="True"
                     >
-                        <DataGrid.ContextMenu>
-                            <ContextMenu>
-                                <MenuItem x:Name="_menuShowPassword" Header="Show password"/>
-                                <MenuItem x:Name="_menuShowCode" Header="Show code"/>
-                            </ContextMenu>
-                        </DataGrid.ContextMenu>
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Login" Binding="{Binding Login}" Width="180"/>
-                            <DataGridTextColumn Header="Name" Binding="{Binding Nom}" Width="*"/>
+                            <DataGridTemplateColumn Header="Name" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Nom}" VerticalAlignment="Center" IsVisible="{Binding Nom, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+                                            <Border
+                                                IsVisible="{Binding Admin}"
+                                                Background="{DynamicResource AccentFillColorDefaultBrush}"
+                                                CornerRadius="4"
+                                                Padding="6,2"
+                                            >
+                                                <TextBlock
+                                                    Text="Admin"
+                                                    FontSize="11"
+                                                    FontWeight="SemiBold"
+                                                    Foreground="White"
+                                                />
+                                            </Border>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
                             <DataGridTextColumn Header="Address" Binding="{Binding Adresse}" Width="2*"/>
                             <DataGridTextColumn Header="City" Binding="{Binding Ville}" Width="*"/>
                             <DataGridTextColumn Header="Code" Binding="{Binding Code}" Width="90"/>

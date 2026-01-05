@@ -271,6 +271,30 @@ namespace PPE.Model
         }
 
         /// <summary>
+        /// Checks if a user is still admin (re-verify from database)
+        /// </summary>
+        public static bool CheckAdminStatus(Guid userId)
+        {
+            var db = Connection.Instance();
+
+            try
+            {
+                if (!db.IsConnect()) return false;
+
+                using var cmd = new NpgsqlCommand("SELECT admin FROM utilisateur WHERE id = @id", db.DbConnection);
+                cmd.Parameters.AddWithValue("@id", userId);
+
+                var result = cmd.ExecuteScalar();
+                return result != null && (bool)result;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error checking admin status: " + ex.Message);
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Creates a new user account with SHA512 hash + salt
         /// </summary>
         public bool CreateAccount(string password)
@@ -475,6 +499,33 @@ namespace PPE.Model
             catch (Exception ex)
             {
                 Console.WriteLine("Error updating 2FA: " + ex.Message);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Updates user admin status
+        /// </summary>
+        public bool UpdateAdmin(bool isAdmin)
+        {
+            if (Id == null) return false;
+            var db = Connection.Instance();
+
+            try
+            {
+                if (!db.IsConnect()) return false;
+
+                using var cmd = new NpgsqlCommand("CALL utilisateur_update_admin(@id, @admin)", db.DbConnection);
+                cmd.Parameters.AddWithValue("@id", Id.Value);
+                cmd.Parameters.AddWithValue("@admin", isAdmin);
+
+                cmd.ExecuteNonQuery();
+                Admin = isAdmin;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error updating admin status: " + ex.Message);
                 return false;
             }
         }

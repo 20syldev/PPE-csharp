@@ -272,14 +272,40 @@ namespace PPE.Controller
                 if (e.Source is Control ctrl && ctrl.FindAncestorOfType<DataGridRow>() != null)
                     EditUser();
             };
-            _grid.PointerPressed += (s, e) =>
+
+            var menuFlyout = new MenuFlyout();
+            var menuShowPassword = new MenuItem { Header = "Show password" };
+            var menuShowCode = new MenuItem { Header = "Show code" };
+            var menuToggleAdmin = new MenuItem { Header = "Make admin" };
+
+            menuShowPassword.Click += async (s, e) =>
             {
-                if (e.GetCurrentPoint(_grid).Properties.IsRightButtonPressed &&
-                    e.Source is Control ctrl)
+                if (_grid.SelectedItem is User u)
+                    await Dialogs.ShowInfo(this, "Password", u.Password ?? "(not available)");
+            };
+            menuShowCode.Click += async (s, e) =>
+            {
+                if (_grid.SelectedItem is User u)
+                    await Dialogs.ShowInfo(this, "User Code", u.IdCode?.ToString() ?? "(not available)");
+            };
+            menuToggleAdmin.Click += async (s, e) => await ToggleAdminStatus();
+
+            menuFlyout.Items.Add(menuShowPassword);
+            menuFlyout.Items.Add(menuShowCode);
+            menuFlyout.Items.Add(new Separator());
+            menuFlyout.Items.Add(menuToggleAdmin);
+
+            _grid.PointerReleased += (s, e) =>
+            {
+                if (e.InitialPressMouseButton == MouseButton.Right && e.Source is Control ctrl)
                 {
                     var row = ctrl.FindAncestorOfType<DataGridRow>();
                     if (row?.DataContext is User u)
+                    {
                         _grid.SelectedItem = u;
+                        menuToggleAdmin.Header = u.Admin ? "Remove admin" : "Make admin";
+                        menuFlyout.ShowAt(_grid, true);
+                    }
                 }
             };
 
@@ -294,17 +320,6 @@ namespace PPE.Controller
 
             _btnDel.Click += (s, e) => DeleteUser();
             _btnRefresh.Click += (s, e) => LoadUsers();
-
-            _menuShowPassword.Click += async (s, e) =>
-            {
-                if (_grid.SelectedItem is User u)
-                    await Dialogs.ShowInfo(this, "Password", u.Password ?? "(not available)");
-            };
-            _menuShowCode.Click += async (s, e) =>
-            {
-                if (_grid.SelectedItem is User u)
-                    await Dialogs.ShowInfo(this, "User Code", u.IdCode?.ToString() ?? "(not available)");
-            };
 
             foreach (var item in _nav.MenuItems)
             {
@@ -443,6 +458,70 @@ namespace PPE.Controller
             {
                 r.Id = u.Id;
                 if (r.Update()) LoadUsers();
+            }
+        }
+
+        private async Task ToggleAdminStatus()
+        {
+            if (_grid.SelectedItem is not User targetUser || targetUser.Id == null) return;
+            if (User.Current?.Id == null) return;
+
+            if (targetUser.Id == User.Current.Id)
+            {
+                await Dialogs.ShowInfo(this, "Action Denied",
+                    "You cannot modify your own admin status.\n\nAsk another administrator to do it.");
+                return;
+            }
+
+            var currentUserStatus = User.CheckAdminStatus(User.Current.Id.Value);
+            if (!currentUserStatus)
+            {
+                await Dialogs.ShowInfo(this, "Access Denied",
+                    "You no longer have admin rights. You will be logged out.");
+                User.Current = null;
+                new Login().Show();
+                Close();
+                return;
+            }
+
+            var action = targetUser.Admin ? "remove admin rights from" : "grant admin rights to";
+            var actionPast = targetUser.Admin ? "removed from" : "granted to";
+
+            if (!User.Current.TotpEnabled)
+            {
+                await Dialogs.ShowInfo(this, "2FA Required",
+                    "You must have Two-Factor Authentication enabled to modify admin rights.\n\nPlease enable 2FA in Settings first.");
+                return;
+            }
+
+            var confirmResult = await Dialogs.ShowConfirm(this,
+                $"Are you sure you want to {action} {targetUser.Login}?\n\nThis action requires 2FA verification.",
+                "Confirm Admin Change");
+
+            if (confirmResult != ContentDialogResult.Primary) return;
+
+            var code = await Dialogs.ShowTotpVerification(this,
+                $"Enter your 2FA code to {action} {targetUser.Login}:");
+
+            if (string.IsNullOrEmpty(code)) return;
+
+            var secret = TotpService.DecryptSecret(User.Current.TotpSecret);
+            if (!TotpService.ValidateCode(secret, code))
+            {
+                await Dialogs.ShowInfo(this, "Verification Failed", "Invalid 2FA code. Please try again.");
+                return;
+            }
+
+            var newAdminStatus = !targetUser.Admin;
+            if (targetUser.UpdateAdmin(newAdminStatus))
+            {
+                await Dialogs.ShowInfo(this, "Success",
+                    $"Admin rights have been {actionPast} {targetUser.Login}.");
+                LoadUsers();
+            }
+            else
+            {
+                await Dialogs.ShowInfo(this, "Error", "Failed to update admin status. Please try again.");
             }
         }
     }
@@ -1000,6 +1079,35 @@ namespace PPE.Controller
                 DefaultButton = ContentDialogButton.Close
             };
             await dialog.ShowAsync(parent);
+        }
+
+        public static async Task<string?> ShowTotpVerification(Window parent, string message)
+        {
+            var textBox = new TextBox
+            {
+                Watermark = "6-digit code",
+                MaxLength = 6,
+                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch
+            };
+
+            var stack = new StackPanel { Spacing = 12 };
+            stack.Children.Add(new TextBlock { Text = message, TextWrapping = Avalonia.Media.TextWrapping.Wrap });
+            stack.Children.Add(textBox);
+
+            var dialog = new ContentDialog
+            {
+                Title = "Two-Factor Authentication",
+                Content = stack,
+                PrimaryButtonText = "Verify",
+                CloseButtonText = "Cancel",
+                DefaultButton = ContentDialogButton.Primary
+            };
+
+            var result = await dialog.ShowAsync(parent);
+            if (result == ContentDialogResult.Primary)
+                return textBox.Text?.Trim();
+
+            return null;
         }
     }
 }
